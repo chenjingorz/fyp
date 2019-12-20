@@ -88,8 +88,8 @@ public class poemPreview extends AppCompatActivity {
     }
 
     public void toGreetingPage(View v){
-//        Intent intent = new Intent (this, greetingPage.class);
-//        startActivity(intent);
+        Intent intent = new Intent (this, greetingPage.class);
+        startActivity(intent);
     }
 
     //support functions

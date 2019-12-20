@@ -31,6 +31,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Calendar;
 
 public class writePoem extends AppCompatActivity {
 
@@ -112,7 +113,7 @@ public class writePoem extends AppCompatActivity {
             bannerV.setText(spannable(poemText), TextView.BufferType.SPANNABLE);
 
             //save the image
-            saveCanvas(view);
+            saveCanvas();
 
             updateWordCount();
             clearCanvas(view);
@@ -165,9 +166,9 @@ public class writePoem extends AppCompatActivity {
         editor.apply();
     }
 
-    private void saveCanvas(View v){
-        String baseFilePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/fyp/"; // The folder name in which your file has to be saved.
-        String fileName = "darwboard1.png"; // Your filename
+    private void saveCanvas(){
+        String baseFilePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/fyp/poem"+poem;
+        String fileName = "/poem"+poem+"_"+Calendar.getInstance().getTimeInMillis()+".png";
 
         File f = new File(baseFilePath);
         if (!f.exists()){
