@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Parkinson-Dec19</string>
+    <string name="back">返回</string>
+    <string name="nextWord">下一个</string>
+    <string name="rewrite">重写</string>
+    <string name="change">换一首</string>
+    <string name="loading">loading</string>
+    <string name="start">开始</string>
+    <string name="level">等级</string>
+    <string name="wordCount">wordCount</string>
+    <string name="writePoem">开始写字</string>
+    <string name="gallery">字廊</string>
+</resources>

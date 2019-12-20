@@ -1,0 +1,2 @@
+include ':app', ':drawingboard'
+rootProject.name='Parkinson-Dec19'
