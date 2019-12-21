@@ -32,6 +32,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class writePoem extends AppCompatActivity {
 
@@ -43,11 +45,14 @@ public class writePoem extends AppCompatActivity {
     int poem;
     int max;
     int startWord = 0; //start at index 0
+    int poemLength;
 
     String title;
     String firstLine;
     String secLine;
     String poemText;
+
+    Timer timer;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -70,13 +75,19 @@ public class writePoem extends AppCompatActivity {
         firstLine = receive.getString("firstLine");
         secLine = receive.getString("secLine");
         poemText = firstLine + secLine;
+        poemLength = poemText.length();
         setTexts();
 
         poem = receive.getInt("poemNumber");
         max = receive.getInt("totalNumber");
+
+        saveCanvasTimer();
+
     }
 
     public void changePoem(View v) throws IOException {
+        timer.cancel();
+
         startWord = 0;
 
         poem++;
@@ -98,11 +109,12 @@ public class writePoem extends AppCompatActivity {
         System.out.println(poemText);
 
         setTexts();
+        saveCanvasTimer();
     }
 
     public void nextWord(View view){
         //edge case: when it is at the last word and click next word
-        if (startWord==poemText.length()){
+        if (startWord==poemLength){
             Toast toast = Toast.makeText(getApplicationContext(),
                     "写完了哦，换一首吧！",
                     Toast.LENGTH_SHORT);
@@ -113,7 +125,7 @@ public class writePoem extends AppCompatActivity {
             bannerV.setText(spannable(poemText), TextView.BufferType.SPANNABLE);
 
             //save the image
-            saveCanvas();
+            saveCanvas(true);
 
             updateWordCount();
             clearCanvas(view);
@@ -125,6 +137,8 @@ public class writePoem extends AppCompatActivity {
     }
 
     public void toPoemDisplay(View v){
+        timer.cancel();
+
         Bundle send = new Bundle();
         send.putString("title",title);
         send.putString("firstLine",firstLine);
@@ -133,6 +147,23 @@ public class writePoem extends AppCompatActivity {
         Intent intent = new Intent (this, poemPreview.class);
         intent.putExtras(send);
         startActivity(intent);
+    }
+
+    private void saveCanvasTimer(){
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                //stop the task when at the last word
+                if (startWord==poemLength) cancel();
+                saveCanvas(false);
+            }
+        };
+
+        timer = new Timer();
+
+        long delay = 1000L;
+        long period = 1000;
+        timer.scheduleAtFixedRate(task, delay, period);
     }
 
     //support functions
@@ -166,9 +197,13 @@ public class writePoem extends AppCompatActivity {
         editor.apply();
     }
 
-    private void saveCanvas(){
+    private void saveCanvas(boolean next){
+        // to indicate if the method is initiated by the "next" button
+        String affix = "";
+        if (next) affix = "next";
+
         String baseFilePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/fyp/poem"+poem;
-        String fileName = "/poem"+poem+"_"+Calendar.getInstance().getTimeInMillis()+".png";
+        String fileName = "/poem"+poem+"_"+Calendar.getInstance().getTimeInMillis()+affix+".png";
 
         File f = new File(baseFilePath);
         if (!f.exists()){
@@ -179,8 +214,9 @@ public class writePoem extends AppCompatActivity {
         try
         {
             FileOutputStream fos = new FileOutputStream(file);
-            Bitmap bitmap = drawingBoard.getBitMapSignature();
+            Bitmap bitmap = drawingBoard.getBitMapSignature(); //check if bitmap is blank before saving?
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            System.out.println(baseFilePath+fileName);
             fos.flush();
             fos.close();
         }
