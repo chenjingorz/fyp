@@ -42,10 +42,10 @@ public class greetingPage extends AppCompatActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.writePoem:
-                        toPoemPreview(barV);
+                        toPoemPreview();
                         return true;
                     case R.id.gallery:
-                        toGallery(barV);
+                        toGalleryPage();
                         return true;
                 }
                 return false;
@@ -58,13 +58,14 @@ public class greetingPage extends AppCompatActivity {
     }
 
     //support functions
-    private void toPoemPreview(View v){
+    private void toPoemPreview(){
         Intent intent = new Intent (this, poemPreview.class);
         startActivity(intent);
     }
 
-    private void toGallery(View v){
-        //to gallery
+    private void toGalleryPage(){
+        Intent intent = new Intent (this, galleryPage.class);
+        startActivity(intent);
     }
 
     private void updateProgress(){

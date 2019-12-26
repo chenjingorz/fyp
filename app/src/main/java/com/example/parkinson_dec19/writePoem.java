@@ -19,6 +19,7 @@ import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -81,12 +82,13 @@ public class writePoem extends AppCompatActivity {
         poem = receive.getInt("poemNumber");
         max = receive.getInt("totalNumber");
 
-        saveCanvasTimer();
+        //saveCanvasTimer();
 
     }
 
     public void changePoem(View v) throws IOException {
-        timer.cancel();
+        //timer.cancel();
+        clearCanvas(v);
 
         startWord = 0;
 
@@ -109,7 +111,7 @@ public class writePoem extends AppCompatActivity {
         System.out.println(poemText);
 
         setTexts();
-        saveCanvasTimer();
+        //saveCanvasTimer();
     }
 
     public void nextWord(View view){
@@ -150,6 +152,8 @@ public class writePoem extends AppCompatActivity {
     }
 
     private void saveCanvasTimer(){
+        // to save drawings at 1sec interval
+        // not implemented: check if bitmap is empty, if yes, don't save to reduce memory
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
@@ -164,6 +168,13 @@ public class writePoem extends AppCompatActivity {
         long delay = 1000L;
         long period = 1000;
         timer.scheduleAtFixedRate(task, delay, period);
+    }
+
+    public boolean onTouchEvent(MotionEvent event){
+        float corX = event.getX();
+        float corY = event.getY();
+        System.out.println(corX +", "+ corY);
+        return true;
     }
 
     //support functions
