@@ -7,7 +7,7 @@
     tools:context=".writePoem"
     android:background="@drawable/bg2">
 
-    <com.suyati.telvin.drawingboard.DrawingBoard
+    <com.example.parkinson_dec19.drawBoard
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintDimensionRatio="1:1"

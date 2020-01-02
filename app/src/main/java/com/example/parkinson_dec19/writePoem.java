@@ -19,6 +19,7 @@ import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -32,13 +33,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class writePoem extends AppCompatActivity {
 
-    DrawingBoard drawingBoard;
+    drawBoard drawingBoard;
     TextView titleV;
     TextView wordV;
     TextView bannerV;
@@ -52,6 +54,8 @@ public class writePoem extends AppCompatActivity {
     String firstLine;
     String secLine;
     String poemText;
+
+    ArrayList poemCoord = new ArrayList();
 
     Timer timer;
 
@@ -68,8 +72,9 @@ public class writePoem extends AppCompatActivity {
         wordV = findViewById(R.id.word);
         bannerV = findViewById(R.id.banner);
 
-        drawingBoard.setPenColor(R.color.colorBlack);
-        drawingBoard.setPenWidth(20f);
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        drawingBoard.init(metrics);
 
         Bundle receive = getIntent().getExtras();
         title = receive.getString("title");
@@ -135,11 +140,11 @@ public class writePoem extends AppCompatActivity {
     }
 
     public void clearCanvas(View v){
-        drawingBoard.clearBoard();
+        drawingBoard.clear();
     }
 
     public void toPoemDisplay(View v){
-        timer.cancel();
+        //timer.cancel();
 
         Bundle send = new Bundle();
         send.putString("title",title);
@@ -168,13 +173,6 @@ public class writePoem extends AppCompatActivity {
         long delay = 1000L;
         long period = 1000;
         timer.scheduleAtFixedRate(task, delay, period);
-    }
-
-    public boolean onTouchEvent(MotionEvent event){
-        float corX = event.getX();
-        float corY = event.getY();
-        System.out.println(corX +", "+ corY);
-        return true;
     }
 
     //support functions
@@ -225,7 +223,7 @@ public class writePoem extends AppCompatActivity {
         try
         {
             FileOutputStream fos = new FileOutputStream(file);
-            Bitmap bitmap = drawingBoard.getBitMapSignature(); //check if bitmap is blank before saving?
+            Bitmap bitmap = drawingBoard.getmBitmap(); //check if bitmap is blank before saving?
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
             System.out.println(baseFilePath+fileName);
             fos.flush();
