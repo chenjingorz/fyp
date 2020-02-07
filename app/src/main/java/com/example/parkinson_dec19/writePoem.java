@@ -220,14 +220,15 @@ public class writePoem extends AppCompatActivity {
 
         String baseFilePath = Environment.getExternalStorageDirectory().getPath()+"/fyp/poem"+poem;
         System.out.println(baseFilePath);
+
         File f = new File(baseFilePath);
         if (!f.exists()){
             f.mkdir();
+            System.out.println(f);
         }
 
         String fileName = "/poem"+poem+"_"+Calendar.getInstance().getTimeInMillis()+affix+".png";
         File file = new File(f+fileName);
-        if (!file.exists()) file.mkdir();
 
         try
         {
@@ -235,11 +236,11 @@ public class writePoem extends AppCompatActivity {
             Bitmap bitmap = drawingBoard.getmBitmap(); //check if bitmap is blank before saving?
 
             //check if word written is the same as the displayed word
-//            String result = ocr.recognise(bitmap);
-//            System.out.println("recognised text is: "+result);
+            ocr.initAPI();
+            String result = ocr.recognise(bitmap);
+            System.out.println("recognised text is: "+result);
 
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            System.out.println(baseFilePath+fileName);
             fos.flush();
             fos.close();
         }
