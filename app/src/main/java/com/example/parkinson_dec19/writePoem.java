@@ -59,6 +59,8 @@ public class writePoem extends AppCompatActivity {
 
     Timer timer;
 
+    TessOcr ocr = new TessOcr();
+
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,6 +128,8 @@ public class writePoem extends AppCompatActivity {
                     "写完了哦，换一首吧！",
                     Toast.LENGTH_SHORT);
             toast.show();
+            PoemList update = new PoemList();
+            update.updateFlag("poem"+poem);
         }
         else {
             wordV.setText(String.valueOf(poemText.charAt(startWord)));
@@ -202,7 +206,10 @@ public class writePoem extends AppCompatActivity {
 
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putInt(getString(R.string.wordCount), count+1);
-        //editor.remove(getString(R.string.wordCount)
+
+        //to reset the progress to 0 for testing
+        //editor.remove(getString(R.string.wordCount)).commit();
+
         editor.apply();
     }
 
@@ -211,19 +218,26 @@ public class writePoem extends AppCompatActivity {
         String affix = "";
         if (next) affix = "next";
 
-        String baseFilePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/fyp/poem"+poem;
-        String fileName = "/poem"+poem+"_"+Calendar.getInstance().getTimeInMillis()+affix+".png";
-
+        String baseFilePath = Environment.getExternalStorageDirectory().getPath()+"/fyp/poem"+poem;
+        System.out.println(baseFilePath);
         File f = new File(baseFilePath);
         if (!f.exists()){
             f.mkdir();
         }
+
+        String fileName = "/poem"+poem+"_"+Calendar.getInstance().getTimeInMillis()+affix+".png";
         File file = new File(f+fileName);
+        if (!file.exists()) file.mkdir();
 
         try
         {
             FileOutputStream fos = new FileOutputStream(file);
             Bitmap bitmap = drawingBoard.getmBitmap(); //check if bitmap is blank before saving?
+
+            //check if word written is the same as the displayed word
+//            String result = ocr.recognise(bitmap);
+//            System.out.println("recognised text is: "+result);
+
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
             System.out.println(baseFilePath+fileName);
             fos.flush();
