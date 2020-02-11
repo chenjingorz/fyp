@@ -9,9 +9,9 @@ import java.io.OutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 
-public class TessWord extends Application {
+public class tessWord extends Application {
 
-    public static TessWord instance =null;
+    public static tessWord instance =null;
 
     @Override
     public void onCreate() {
@@ -24,12 +24,12 @@ public class TessWord extends Application {
 
     private String tessDataPath()
     {
-        return TessWord.instance.getExternalFilesDir(null)+"/tessdata/";
+        return tessWord.instance.getExternalFilesDir(null)+"/tessdata/";
     }
 
     public String getTessDataParentDirectory()
     {
-        return TessWord.instance.getExternalFilesDir(null).getAbsolutePath();
+        return tessWord.instance.getExternalFilesDir(null).getAbsolutePath();
     }
 
     private void copyTessDataForTextRecognizor()
@@ -38,20 +38,20 @@ public class TessWord extends Application {
         Runnable run = new Runnable() {
             @Override
             public void run() {
-                AssetManager assetManager = TessWord.instance.getAssets();
+                AssetManager assetManager = tessWord.instance.getAssets();
                 OutputStream out =null;
                 try {
 
-//                    InputStream in = assetManager.open("chi_sim.traineddata");
-                    InputStream in = assetManager.open("eng.traineddata");
+                    InputStream in = assetManager.open("chi_sim.traineddata");
+//                    InputStream in = assetManager.open("eng.traineddata");
 
                     String tesspath = instance.tessDataPath();
                     File tessFolder = new File(tesspath);
                     if(!tessFolder.exists())
                         tessFolder.mkdir();
 
-//                    String tessData = tesspath+"/"+"chi_sim.traineddata";
-                    String tessData = tesspath+"/"+"eng.traineddata";
+                    String tessData = tesspath+"/"+"chi_sim.traineddata";
+//                    String tessData = tesspath+"/"+"eng.traineddata";
 
                     File tessFile = new File(tessData);
                     if(!tessFile.exists())

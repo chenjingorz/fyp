@@ -12,7 +12,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:name="TessWord">
+        android:name=".tessWord">
         <activity android:name=".galleryPage"></activity>
         <activity android:name=".greetingPage">
             <intent-filter>

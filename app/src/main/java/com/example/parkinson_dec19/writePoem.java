@@ -20,7 +20,6 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.util.DisplayMetrics;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -59,7 +58,7 @@ public class writePoem extends AppCompatActivity {
 
     Timer timer;
 
-    TessOcr ocr = new TessOcr();
+    tessOcr ocr = new tessOcr();
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -73,10 +72,6 @@ public class writePoem extends AppCompatActivity {
         titleV = findViewById(R.id.title);
         wordV = findViewById(R.id.word);
         bannerV = findViewById(R.id.banner);
-
-        DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        drawingBoard.init(metrics);
 
         Bundle receive = getIntent().getExtras();
         title = receive.getString("title");
@@ -125,7 +120,7 @@ public class writePoem extends AppCompatActivity {
         //edge case: when it is at the last word and click next word
         if (startWord==poemLength){
             Toast toast = Toast.makeText(getApplicationContext(),
-                    "写完了哦，换一首吧！",
+                    "Try a new poem!",
                     Toast.LENGTH_SHORT);
             toast.show();
             PoemList update = new PoemList();
@@ -235,7 +230,7 @@ public class writePoem extends AppCompatActivity {
             FileOutputStream fos = new FileOutputStream(file);
             Bitmap bitmap = drawingBoard.getmBitmap(); //check if bitmap is blank before saving?
 
-            //check if word written is the same as the displayed word
+//            //check if word written is the same as the displayed word
             ocr.initAPI();
             String result = ocr.recognise(bitmap);
             System.out.println("recognised text is: "+result);

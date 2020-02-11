@@ -19,7 +19,6 @@ import java.util.ArrayList;
 
 public class drawBoard extends View {
 
-    public static int BRUSH_SIZE = 20;
     public static final int DEFAULT_COLOR = Color.BLACK;
     public static final int DEFAULT_BG_COLOR = Color.WHITE;
     private static final float TOUCH_TOLERANCE = 4;
@@ -27,9 +26,9 @@ public class drawBoard extends View {
     private Path mPath;
     private Paint mPaint;
     private ArrayList<FingerPath> paths = new ArrayList<>();
-    private int currentColor;
+    private int currentColor = Color.BLACK;
     private int backgroundColor = DEFAULT_BG_COLOR;
-    private int strokeWidth;
+    private int strokeWidth = 20;
     private Bitmap mBitmap;
     private Canvas mCanvas;
     private Paint mBitmapPaint = new Paint(Paint.DITHER_FLAG);
@@ -51,17 +50,6 @@ public class drawBoard extends View {
         mPaint.setAlpha(0xff);
     }
 
-    public void init(DisplayMetrics metrics) {
-        int height = metrics.heightPixels;
-        int width = metrics.widthPixels;
-
-        mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        mCanvas = new Canvas(mBitmap);
-
-        currentColor = DEFAULT_COLOR;
-        strokeWidth = BRUSH_SIZE;
-    }
-
     public void clear() {
         backgroundColor = DEFAULT_BG_COLOR;
         paths.clear();
@@ -71,17 +59,19 @@ public class drawBoard extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.save();
+
+        int height = this.getHeight();
+        int width = this.getHeight();
+
+        mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        mCanvas = new Canvas(mBitmap);
+
         mCanvas.drawColor(backgroundColor);
 
         for (FingerPath fp : paths) {
             mPaint.setColor(fp.color);
             mPaint.setStrokeWidth(fp.strokeWidth);
             mPaint.setMaskFilter(null);
-
-//            if (fp.emboss)
-//                mPaint.setMaskFilter(mEmboss);
-//            else if (fp.blur)
-//                mPaint.setMaskFilter(mBlur);
 
             mCanvas.drawPath(fp.path, mPaint);
 
