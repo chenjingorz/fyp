@@ -81,7 +81,7 @@ public class greetingPage extends AppCompatActivity {
             stage = stage2;
             seedV.setImageResource(R.drawable.seedling);
         }
-        else if (count<stage3) stage = stage3;
+        else if (count<stage3) stage = stage3;  //todo: resize stage2 plant and add stage3 tree
         else stage = stage3;
         barV.setMax(stage);
 

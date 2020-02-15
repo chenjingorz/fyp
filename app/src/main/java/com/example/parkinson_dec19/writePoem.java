@@ -19,12 +19,9 @@ import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.suyati.telvin.drawingboard.DrawingBoard;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -32,7 +29,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -53,8 +49,7 @@ public class writePoem extends AppCompatActivity {
     String firstLine;
     String secLine;
     String poemText;
-
-    ArrayList poemCoord = new ArrayList();
+    String baseFilePath;
 
     Timer timer;
 
@@ -79,17 +74,21 @@ public class writePoem extends AppCompatActivity {
         secLine = receive.getString("secLine");
         poemText = firstLine + secLine;
         poemLength = poemText.length();
-        setTexts();
 
         poem = receive.getInt("poemNumber");
         max = receive.getInt("totalNumber");
 
+        setDisplayedTexts();
+        setBaseFilePath();
+
         //saveCanvasTimer();
+        //todo: overlay a writing grid on the drawing pad (cannot be done!)
 
     }
 
     public void changePoem(View v) throws IOException {
         //timer.cancel();
+        setBaseFilePath();
         clearCanvas(v);
 
         startWord = 0;
@@ -112,7 +111,7 @@ public class writePoem extends AppCompatActivity {
         poemText = firstLine+secLine;
         System.out.println(poemText);
 
-        setTexts();
+        setDisplayedTexts();
         //saveCanvasTimer();
     }
 
@@ -123,7 +122,7 @@ public class writePoem extends AppCompatActivity {
                     "Try a new poem!",
                     Toast.LENGTH_SHORT);
             toast.show();
-            PoemList update = new PoemList();
+            poemList update = new poemList();
             update.updateFlag("poem"+poem);
         }
         else {
@@ -175,7 +174,7 @@ public class writePoem extends AppCompatActivity {
     }
 
     //support functions
-    private void setTexts(){
+    private void setDisplayedTexts(){
         titleV.setText(title);
         wordV.setText(String.valueOf(poemText.charAt(startWord)));
         bannerV.setText(spannable(poemText),TextView.BufferType.SPANNABLE);
@@ -202,8 +201,8 @@ public class writePoem extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putInt(getString(R.string.wordCount), count+1);
 
-        //to reset the progress to 0 for testing
-        //editor.remove(getString(R.string.wordCount)).commit();
+        //todo: to reset the progress to 0 for testing
+        editor.remove(getString(R.string.wordCount)).commit();
 
         editor.apply();
     }
@@ -212,9 +211,6 @@ public class writePoem extends AppCompatActivity {
         // to indicate if the method is initiated by the "next" button
         String affix = "";
         if (next) affix = "next";
-
-        String baseFilePath = Environment.getExternalStorageDirectory().getPath()+"/fyp/poem"+poem;
-        System.out.println(baseFilePath);
 
         File f = new File(baseFilePath);
         if (!f.exists()){
@@ -228,13 +224,14 @@ public class writePoem extends AppCompatActivity {
         try
         {
             FileOutputStream fos = new FileOutputStream(file);
-            Bitmap bitmap = drawingBoard.getmBitmap(); //check if bitmap is blank before saving?
+            Bitmap bitmap = drawingBoard.getBitmap(false); //check if bitmap is blank before saving?
 
-//            //check if word written is the same as the displayed word
+            //TODO???? check if word written is the same as the displayed word?
             ocr.initAPI();
             String result = ocr.recognise(bitmap);
             System.out.println("recognised text is: "+result);
 
+            //save the image
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
             fos.flush();
             fos.close();
@@ -243,6 +240,10 @@ public class writePoem extends AppCompatActivity {
         {
             e.printStackTrace();
         }
+    }
+
+    private void setBaseFilePath(){
+        baseFilePath = Environment.getExternalStorageDirectory().getPath()+"/fyp/poem"+poem;
     }
 
     private void permission(){

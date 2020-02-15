@@ -2,19 +2,18 @@ package com.example.parkinson_dec19;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.EmbossMaskFilter;
-import android.graphics.MaskFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 
 
 public class drawBoard extends View {
@@ -28,10 +27,20 @@ public class drawBoard extends View {
     private ArrayList<FingerPath> paths = new ArrayList<>();
     private int currentColor = Color.BLACK;
     private int backgroundColor = DEFAULT_BG_COLOR;
-    private int strokeWidth = 20;
-    private Bitmap mBitmap;
-    private Canvas mCanvas;
+    private int strokeWidth = 35;
+    private Bitmap bitmap;
+    private Canvas canvas;
     private Paint mBitmapPaint = new Paint(Paint.DITHER_FLAG);
+
+    private static int IMAGE_SIZE = 64;
+    private static int PIXEL_DIFF = 10;
+
+    private Float xCord;
+    private Float yCord;
+
+    private ArrayList<Array> matrixInterval = new ArrayList<Array>();
+
+    int count=0;
 
     public drawBoard(Context context) {
         this(context, null);
@@ -63,21 +72,21 @@ public class drawBoard extends View {
         int height = this.getHeight();
         int width = this.getHeight();
 
-        mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        mCanvas = new Canvas(mBitmap);
+        bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        this.canvas = new Canvas(bitmap);
 
-        mCanvas.drawColor(backgroundColor);
+        this.canvas.drawColor(backgroundColor);
 
         for (FingerPath fp : paths) {
             mPaint.setColor(fp.color);
             mPaint.setStrokeWidth(fp.strokeWidth);
             mPaint.setMaskFilter(null);
 
-            mCanvas.drawPath(fp.path, mPaint);
+            this.canvas.drawPath(fp.path, mPaint);
 
         }
 
-        canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
+        canvas.drawBitmap(bitmap, 0, 0, mBitmapPaint);
         canvas.restore();
     }
 
@@ -112,6 +121,8 @@ public class drawBoard extends View {
         float x = event.getX();
         float y = event.getY();
 
+        saveMatrixInterval(x,y,event);
+
         switch(event.getAction()) {
             case MotionEvent.ACTION_DOWN :
                 touchStart(x, y);
@@ -130,7 +141,38 @@ public class drawBoard extends View {
         return true;
     }
 
-    public Bitmap getmBitmap(){
-        return mBitmap;
+    private void saveMatrixInterval(float curX, float curY, MotionEvent event){
+        //note: the ending coord of each word written is not saved when "next" is clicked
+
+        if (xCord==null && yCord==null){
+            xCord = event.getX();
+            yCord = event.getY();
+        }
+
+        //check if #pixels moved > threshold
+        if (Math.abs(curX-xCord)>PIXEL_DIFF || Math.abs(curY-yCord)>PIXEL_DIFF){
+            Bitmap bitmap = getBitmap(false);
+            int[] array = new int[bitmap.getWidth() * bitmap.getHeight()];
+            bitmap.getPixels(array, 0, bitmap.getWidth(),0, 0,
+                    bitmap.getWidth(), bitmap.getHeight());
+            int[] masked = Arrays.stream(array).map(i -> i == -1 ? 0 : 1).toArray();
+
+//            ArrayList<Object> temp = new ArrayList<>();
+//            temp.add(masked);
+//            temp.add(Calendar.getInstance().getTimeInMillis());
+//            matrixInterval.add(temp);
+
+            xCord = curX;
+            yCord = curY;
+        }
+    }
+
+    public Bitmap getBitmap(Boolean resize){
+
+        if (resize) {
+            //TODO???? check if its btr to resize?
+            bitmap = Bitmap.createScaledBitmap(bitmap, IMAGE_SIZE, IMAGE_SIZE, false);
+        }
+        return bitmap;
     }
 }

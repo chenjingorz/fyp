@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +26,7 @@ public class galleryPage extends AppCompatActivity {
     }
 
     private void markFlagged(){
-        PoemList poemList = new PoemList();
+        poemList poemList = new poemList();
         HashMap<String, Integer> flags = poemList.getPoemFlag();
 
         //display all poems, make buttons green if flagged 1 (ie attempted)
@@ -35,12 +34,12 @@ public class galleryPage extends AppCompatActivity {
             String key = entry.getKey();
             Integer value = entry.getValue();
 
+            //todo: clickable buttons to show the words written
             if (value==1){
                 int id = getResources().getIdentifier(key,
                         "id", getPackageName());
                 Button button = findViewById(id);
                 button.setBackgroundColor(getResources().getColor(R.color.colorFlag));
-
             }
         }
 

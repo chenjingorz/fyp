@@ -2,13 +2,13 @@ package com.example.parkinson_dec19;
 
 import java.util.HashMap;
 
-public class PoemList {
+public class poemList {
 
     //poem#, poemName, flag
     HashMap poemList = new HashMap<String, String>();
     HashMap poemFlag = new HashMap<String, Integer>();
 
-    public PoemList(){
+    public poemList(){
         poemList.put("poem0","静夜思");
         poemList.put("poem1","凉州曲");
 
