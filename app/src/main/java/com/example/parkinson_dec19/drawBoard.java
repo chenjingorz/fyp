@@ -6,14 +6,29 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.myscript.iink.Configuration;
+import com.myscript.iink.ContentPackage;
+import com.myscript.iink.ContentPart;
+import com.myscript.iink.Editor;
+import com.myscript.iink.Engine;
+import com.myscript.iink.IEditorListener;
+import com.myscript.iink.MimeType;
+import com.myscript.iink.PointerEvent;
+import com.myscript.iink.Renderer;
+import com.myscript.iink.uireferenceimplementation.FontMetricsProvider;
+
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class drawBoard extends View {
@@ -39,8 +54,8 @@ public class drawBoard extends View {
     private Float yCord;
 
     private ArrayList<Array> matrixInterval = new ArrayList<Array>();
+    ArrayList<PointerEvent> events = new ArrayList<PointerEvent>();
 
-    int count=0;
 
     public drawBoard(Context context) {
         this(context, null);
@@ -70,7 +85,7 @@ public class drawBoard extends View {
         canvas.save();
 
         int height = this.getHeight();
-        int width = this.getHeight();
+        int width = this.getWidth();
 
         bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         this.canvas = new Canvas(bitmap);
@@ -125,19 +140,23 @@ public class drawBoard extends View {
 
         switch(event.getAction()) {
             case MotionEvent.ACTION_DOWN :
+                events.add(new PointerEvent().down(x, y));
                 touchStart(x, y);
                 invalidate();
                 break;
             case MotionEvent.ACTION_MOVE :
+                events.add(new PointerEvent().move(x, y));
                 touchMove(x, y);
                 invalidate();
                 break;
             case MotionEvent.ACTION_UP :
+                events.add(new PointerEvent().up(x, y));
                 touchUp();
                 invalidate();
                 break;
         }
 
+        System.out.println(events.size());
         return true;
     }
 
@@ -174,5 +193,82 @@ public class drawBoard extends View {
             bitmap = Bitmap.createScaledBitmap(bitmap, IMAGE_SIZE, IMAGE_SIZE, false);
         }
         return bitmap;
+    }
+
+    private Editor setConfig(){
+        Engine engine = iInk.getEngine();
+
+        // Configure the engine to disable guides (recommended)
+        Configuration conf = engine.getConfiguration();
+        conf.setBoolean("text.guides.enable", false);
+        conf.setStringArray("configuration-manager.search-path", new String[] { "C:/Users/ChenJing/Desktop/CS/FYP/FYP_Dec19_v/recognition-assets" });
+        conf.setString("lang", "zh_CN");
+
+        // Create a renderer with a null render target
+        float dpiX = this.getHeight();
+        float dpiY = this.getWidth();
+        Renderer renderer = engine.createRenderer(dpiX, dpiY, null);
+
+        // Create the editor
+        Editor editor = engine.createEditor(renderer);
+        IEditorListener listener = new IEditorListener() {
+            @Override
+            public void partChanging(Editor editor, ContentPart contentPart, ContentPart contentPart1) {
+
+            }
+
+            @Override
+            public void partChanged(Editor editor) {
+
+            }
+
+            @Override
+            public void contentChanged(Editor editor, String[] strings) {
+
+            }
+
+            @Override
+            public void onError(Editor editor, String s, String s1) {
+                System.out.println(s1);
+            }
+        };
+        editor.addListener(listener);
+
+        // The editor requires a font metrics provider and a view size *before* calling setPart()
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        Map<String, Typeface> typefaceMap = new HashMap<>();
+        editor.setFontMetricsProvider(new FontMetricsProvider(displayMetrics, typefaceMap));
+        editor.setViewSize(640, 480);
+
+//        // Create a temporary package and part for the editor to work with
+        ContentPackage contentPackage = null;
+        try
+        {
+            contentPackage = engine.createPackage("text.iink");
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        ContentPart part = contentPackage.createPart("Text");
+        editor.setPart(part);
+
+        return editor;
+    }
+
+    public void recognise() throws IOException {
+        Editor editor = setConfig();
+        editor.pointerEvents(events.toArray(new PointerEvent[0]), false);
+        editor.waitForIdle();
+
+        //export
+        String result = editor.export_(editor.getRootBlock(), MimeType.TEXT);
+        System.out.println(result);
+        editor.clear();
+    }
+
+    public void eraseEvents(){
+        events.clear();
     }
 }

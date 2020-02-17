@@ -1,9 +1,5 @@
 package com.example.parkinson_dec19;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -22,6 +18,10 @@ import android.text.style.StyleSpan;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -131,6 +131,11 @@ public class writePoem extends AppCompatActivity {
 
             //save the image
             saveCanvas(true);
+            try {
+                drawingBoard.recognise();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             updateWordCount();
             clearCanvas(view);
@@ -139,6 +144,9 @@ public class writePoem extends AppCompatActivity {
 
     public void clearCanvas(View v){
         drawingBoard.clear();
+
+        //erase all strokes recorded for text recognition
+        drawingBoard.eraseEvents();
     }
 
     public void toPoemDisplay(View v){
@@ -227,9 +235,9 @@ public class writePoem extends AppCompatActivity {
             Bitmap bitmap = drawingBoard.getBitmap(false); //check if bitmap is blank before saving?
 
             //TODO???? check if word written is the same as the displayed word?
-            ocr.initAPI();
-            String result = ocr.recognise(bitmap);
-            System.out.println("recognised text is: "+result);
+//            ocr.initAPI();
+//            String result = ocr.recognise(bitmap);
+//            System.out.println("recognised text is: "+result);
 
             //save the image
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
