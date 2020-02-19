@@ -1,7 +1,5 @@
 package com.example.parkinson_dec19;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,11 +12,16 @@ import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 public class greetingPage extends AppCompatActivity {
 
     ProgressBar barV;
     TextView countV;
+
     ImageView seedV;
+    ImageView seedlingV;
+    ImageView treeV;
 
     int stage1 = 20;
     int stage2 = 50;
@@ -30,6 +33,12 @@ public class greetingPage extends AppCompatActivity {
         setContentView(R.layout.activity_greeting_page);
 
         seedV = findViewById(R.id.seed);
+        seedlingV = findViewById(R.id.seedling);
+        treeV = findViewById(R.id.tree);
+        seedlingV.setVisibility(View.INVISIBLE);
+        treeV.setVisibility(View.INVISIBLE);
+
+
         countV = findViewById(R.id.count);
         barV = findViewById(R.id.progressBar);
         updateProgress();
@@ -79,10 +88,15 @@ public class greetingPage extends AppCompatActivity {
         if (count<stage1) stage = stage1;
         else if (count<stage2) {
             stage = stage2;
-            seedV.setImageResource(R.drawable.seedling);
+            seedV.setVisibility(View.INVISIBLE);
+            seedlingV.setVisibility(View.VISIBLE);
         }
-        else if (count<stage3) stage = stage3;  //todo: resize stage2 plant and add stage3 tree
-        else stage = stage3;
+        else {
+            stage = stage3;
+            seedV.setVisibility(View.INVISIBLE);
+            seedlingV.setVisibility(View.INVISIBLE);
+            treeV.setVisibility(View.VISIBLE);
+        }
         barV.setMax(stage);
 
         countV.setText(count+"/"+stage);
