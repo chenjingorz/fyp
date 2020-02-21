@@ -1,18 +1,18 @@
 package com.example.parkinson_dec19;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
-public class poemPreview extends AppCompatActivity {
+public class PoemPreviewPage extends AppCompatActivity {
 
     TextView titleV;
     TextView firstLineV;
@@ -46,7 +46,6 @@ public class poemPreview extends AppCompatActivity {
             title = receive.getString("title");
             firstLine = receive.getString("firstLine");
             secLine = receive.getString("secLine");
-            System.out.println(firstLine+secLine);
             setTexts();
         }
     }
@@ -82,13 +81,13 @@ public class poemPreview extends AppCompatActivity {
         send.putInt("poemNumber",poem);
         send.putInt("totalNumber", max);
 
-        Intent intent = new Intent (this, writePoem.class);
+        Intent intent = new Intent (this, WritingPage.class);
         intent.putExtras(send);
         startActivity(intent);
     }
 
     public void toGreetingPage(View v){
-        Intent intent = new Intent (this, greetingPage.class);
+        Intent intent = new Intent (this, GreetingPage.class);
         startActivity(intent);
     }
 

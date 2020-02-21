@@ -11,18 +11,18 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:name=".tessWord">
-        <activity android:name=".galleryPage"></activity>
-        <activity android:name=".greetingPage">
+        android:theme="@style/AppTheme">
+        <activity android:name=".WritingHistoryPage" />
+        <activity android:name=".GalleryPage" />
+        <activity android:name=".GreetingPage">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".poemPreview"></activity>
-        <activity android:name=".writePoem" />
+        <activity android:name=".PoemPreviewPage" />
+        <activity android:name=".WritingPage" />
     </application>
 
 </manifest>

@@ -5,7 +5,7 @@ import android.app.Application;
 import com.myscript.certificate.MyCertificate;
 import com.myscript.iink.Engine;
 
-public class iInk extends Application
+public class InkEngine extends Application
 {
     private static Engine engine;
 

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".galleryPage"
+    tools:context=".GalleryPage"
     android:background="@drawable/greetbg">
 
     <ScrollView
@@ -40,7 +40,8 @@
                 android:layout_height="wrap_content"
                 android:text="静夜思"
                 android:textSize="30dp"
-                android:layout_marginTop="25dp"/>
+                android:layout_marginTop="25dp"
+                android:onClick="toHandwritingPage"/>
 
             <Button
                 android:id="@+id/poem1"
@@ -48,7 +49,8 @@
                 android:layout_height="wrap_content"
                 android:text="凉州曲"
                 android:textSize="30dp"
-                android:layout_marginTop="10dp"/>
+                android:layout_marginTop="10dp"
+                android:onClick="toHandwritingPage"/>
 
         </LinearLayout>
 

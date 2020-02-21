@@ -15,6 +15,7 @@ import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,17 +24,31 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.myscript.iink.Configuration;
+import com.myscript.iink.ContentPackage;
+import com.myscript.iink.ContentPart;
+import com.myscript.iink.Editor;
+import com.myscript.iink.Engine;
+import com.myscript.iink.IEditorListener;
+import com.myscript.iink.MimeType;
+import com.myscript.iink.PointerEvent;
+import com.myscript.iink.Renderer;
+import com.myscript.iink.uireferenceimplementation.FontMetricsProvider;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class writePoem extends AppCompatActivity {
+public class WritingPage extends AppCompatActivity {
 
     drawBoard drawingBoard;
     TextView titleV;
@@ -51,9 +66,15 @@ public class writePoem extends AppCompatActivity {
     String poemText;
     String baseFilePath;
 
-    Timer timer;
+    Boolean configured = false;
 
-    tessOcr ocr = new tessOcr();
+    Timer timer;
+    PoemList update;
+
+    Engine engine;
+    Editor editor;
+    ContentPackage contentPackage;
+    ContentPart contentPart;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -62,6 +83,8 @@ public class writePoem extends AppCompatActivity {
         setContentView(R.layout.activity_write_poem);
 
         permission();
+
+        update = new PoemList();
 
         drawingBoard = findViewById(R.id.drawinboard);
         titleV = findViewById(R.id.title);
@@ -80,10 +103,6 @@ public class writePoem extends AppCompatActivity {
 
         setDisplayedTexts();
         setBaseFilePath();
-
-        //saveCanvasTimer();
-        //todo: overlay a writing grid on the drawing pad (cannot be done!)
-
     }
 
     public void changePoem(View v) throws IOException {
@@ -122,7 +141,6 @@ public class writePoem extends AppCompatActivity {
                     "Try a new poem!",
                     Toast.LENGTH_SHORT);
             toast.show();
-            poemList update = new poemList();
             update.updateFlag("poem"+poem);
         }
         else {
@@ -131,11 +149,6 @@ public class writePoem extends AppCompatActivity {
 
             //save the image
             saveCanvas(true);
-            try {
-                drawingBoard.recognise();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
             updateWordCount();
             clearCanvas(view);
@@ -151,13 +164,20 @@ public class writePoem extends AppCompatActivity {
 
     public void toPoemDisplay(View v){
         //timer.cancel();
+        if (contentPackage!=null){
+            editor.waitForIdle();
+            contentPackage.close();
+            contentPackage = null;
+            contentPart.close();
+            contentPart = null;
+        }
 
         Bundle send = new Bundle();
         send.putString("title",title);
         send.putString("firstLine",firstLine);
         send.putString("secLine",secLine);
 
-        Intent intent = new Intent (this, poemPreview.class);
+        Intent intent = new Intent (this, PoemPreviewPage.class);
         intent.putExtras(send);
         startActivity(intent);
     }
@@ -210,7 +230,7 @@ public class writePoem extends AppCompatActivity {
         editor.putInt(getString(R.string.wordCount), count+1);
 
         //todo: to reset the progress to 0 for testing
-        editor.remove(getString(R.string.wordCount)).commit();
+//        editor.remove(getString(R.string.wordCount)).commit();
 
         editor.apply();
     }
@@ -234,15 +254,13 @@ public class writePoem extends AppCompatActivity {
             FileOutputStream fos = new FileOutputStream(file);
             Bitmap bitmap = drawingBoard.getBitmap(false); //check if bitmap is blank before saving?
 
-            //TODO???? check if word written is the same as the displayed word?
-//            ocr.initAPI();
-//            String result = ocr.recognise(bitmap);
-//            System.out.println("recognised text is: "+result);
-
-            //save the image
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            fos.flush();
-            fos.close();
+            //if the written word is correct, save the image
+            if (recognise()==String.valueOf(poemText.charAt(startWord))){
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                fos.flush();
+                fos.close();
+            }
+            //todo: if incorrect, remove the previously saved matrix too
         }
         catch (IOException e)
         {
@@ -264,5 +282,89 @@ public class writePoem extends AppCompatActivity {
                         400);
             }
         }
+    }
+
+    private void engineConf(){
+        if (!configured){
+            engine = InkEngine.getEngine();
+            //configure
+            Configuration conf = engine.getConfiguration();
+            conf.setBoolean("text.guides.enable", false);
+            String confDir = "zip://" + getPackageCodePath() + "!/assets/conf";
+            conf.setStringArray("configuration-manager.search-path", new String[]{confDir});
+            String tempDir = getFilesDir().getPath() + File.separator + "tmp";
+            conf.setString("content-package.temp-folder", tempDir);
+            conf.setString("lang", "zh_CN");
+
+            // Create a renderer with a null render target
+            float dpiX = drawingBoard.getHeight();
+            float dpiY = drawingBoard.getWidth();
+
+            System.out.println(dpiX+" "+dpiY);
+            Renderer renderer = engine.createRenderer(dpiX, dpiY, null);
+
+            // Create the editor
+            editor = engine.createEditor(renderer);
+            editor.addListener(new IEditorListener() {
+                @Override
+                public void partChanging(Editor editor, ContentPart contentPart, ContentPart contentPart1) {
+
+                }
+
+                @Override
+                public void partChanged(Editor editor) {
+
+                }
+
+                @Override
+                public void contentChanged(Editor editor, String[] strings) {
+
+                }
+
+                @Override
+                public void onError(Editor editor, String s, String s1) {
+                    System.out.println(s1);
+                }
+            });
+
+            // The editor requires a font metrics provider and a view size *before* calling setPart()
+            DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+            Map<String, Typeface> typefaceMap = new HashMap<>();
+            editor.setFontMetricsProvider(new FontMetricsProvider(displayMetrics, typefaceMap));
+            editor.setViewSize((int)dpiX, (int)dpiY);
+
+            // Create a temporary package and contentPart for the editor to work with
+            contentPackage = null;
+            try {
+                contentPackage = engine.createPackage("text.iink");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            contentPart = contentPackage.createPart("Text");
+            editor.setPart(contentPart);
+
+            configured = true;
+        }
+    }
+
+    private String recognise(){
+        engineConf();
+
+        ArrayList<PointerEvent> events = drawingBoard.getPointerEvents();
+        editor.pointerEvents(events.toArray(new PointerEvent[0]), false);
+        editor.waitForIdle();
+
+        //export
+        String result = null;
+        try {
+            result = editor.export_(editor.getRootBlock(), MimeType.TEXT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(result);
+        editor.clear();
+
+        return result;
     }
 }

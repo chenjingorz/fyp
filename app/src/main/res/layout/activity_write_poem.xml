@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".writePoem"
+    tools:context=".WritingPage"
     android:background="@drawable/bg2">
 
     <com.example.parkinson_dec19.drawBoard
