@@ -67,6 +67,7 @@ public class WritingPage extends AppCompatActivity {
     String baseFilePath;
 
     Boolean configured = false;
+    Boolean lastWordSaved = false;
 
     Timer timer;
     PoemList update;
@@ -109,6 +110,7 @@ public class WritingPage extends AppCompatActivity {
         //timer.cancel();
         setBaseFilePath();
         clearCanvas(v);
+        lastWordSaved = false;
 
         startWord = 0;
 
@@ -137,6 +139,11 @@ public class WritingPage extends AppCompatActivity {
     public void nextWord(View view){
         //edge case: when it is at the last word and click next word
         if (startWord==poemLength){
+            //save word once
+            if (!lastWordSaved) {
+                saveCanvas(true);
+                lastWordSaved = true;
+            }
             Toast toast = Toast.makeText(getApplicationContext(),
                     "Try a new poem!",
                     Toast.LENGTH_SHORT);
@@ -252,15 +259,15 @@ public class WritingPage extends AppCompatActivity {
         try
         {
             FileOutputStream fos = new FileOutputStream(file);
-            Bitmap bitmap = drawingBoard.getBitmap(false); //check if bitmap is blank before saving?
+            Bitmap bitmap = drawingBoard.getBitmap(false); //todo: check if bitmap is blank before saving?
 
             //if the written word is correct, save the image
-            if (recognise()==String.valueOf(poemText.charAt(startWord))){
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                fos.flush();
-                fos.close();
-            }
-            //todo: if incorrect, remove the previously saved matrix too
+//            if (recognise()==String.valueOf(poemText.charAt(startWord))){
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.flush();
+            fos.close();
+//            }
+            //todo: if incorrect, remove the previously saved matrix too?
         }
         catch (IOException e)
         {

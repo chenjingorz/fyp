@@ -3,6 +3,5 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/interactive-ink-examples-android" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/tess-two" vcs="Git" />
   </component>
 </project>

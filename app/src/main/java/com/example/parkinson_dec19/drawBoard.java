@@ -122,7 +122,7 @@ public class drawBoard extends View {
         float x = event.getX();
         float y = event.getY();
 
-        saveMatrixInterval(x,y,event);
+        saveMatrixInterval(x,y);
 
         switch(event.getAction()) {
             case MotionEvent.ACTION_DOWN :
@@ -144,17 +144,17 @@ public class drawBoard extends View {
         return true;
     }
 
-    private void saveMatrixInterval(float curX, float curY, MotionEvent event){
+    private void saveMatrixInterval(float curX, float curY){
         //note: the ending coord of each word written is not saved when "next" is clicked
 
         if (xCord==null && yCord==null){
-            xCord = event.getX();
-            yCord = event.getY();
+            xCord = curX;
+            yCord = curY;
         }
 
         //check if #pixels moved > threshold
         if (Math.abs(curX-xCord)>PIXEL_DIFF || Math.abs(curY-yCord)>PIXEL_DIFF){
-            Bitmap bitmap = getBitmap(false);
+            Bitmap bitmap = getBitmap(true);
             int[] array = new int[bitmap.getWidth() * bitmap.getHeight()];
             bitmap.getPixels(array, 0, bitmap.getWidth(),0, 0,
                     bitmap.getWidth(), bitmap.getHeight());

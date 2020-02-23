@@ -1,2 +1,2 @@
-include ':app', ':drawingboard', ':UIReferenceImplementation'
+include ':app', ':UIReferenceImplementation'
 rootProject.name='Parkinson-Dec19'

@@ -22,6 +22,8 @@ public class PoemPreviewPage extends AppCompatActivity {
     String firstLine;
     String secLine;
 
+    PoemList poemList;
+
     int max;
     int poem = -1;
 
@@ -29,6 +31,8 @@ public class PoemPreviewPage extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_poem_preview);
+
+        poemList = new PoemList();
 
         titleV = findViewById(R.id.title);
         firstLineV = findViewById(R.id.first);
@@ -51,12 +55,8 @@ public class PoemPreviewPage extends AppCompatActivity {
     }
 
     public void showPoem(View v) throws IOException {
-//        max = getResources().getAssets().list("").length;
-//
-//        System.out.println(max);
-        // will include 2 additional assets: images and webkit but cant be found anywhere
+        max = poemList.getPoemFlag().size();
 
-        max = 4; //static assignment for temp solution
         poem++;
         if (poem ==max-2) poem =0;
         String file = "poem"+ poem +".txt";
