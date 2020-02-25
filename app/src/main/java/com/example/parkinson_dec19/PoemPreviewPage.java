@@ -58,7 +58,7 @@ public class PoemPreviewPage extends AppCompatActivity {
         max = poemList.getPoemFlag().size();
 
         poem++;
-        if (poem ==max-2) poem =0;
+        if (poem ==max) poem =0;
         String file = "poem"+ poem +".txt";
 
         BufferedReader reader = new BufferedReader(

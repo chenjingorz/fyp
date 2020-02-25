@@ -11,6 +11,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * add the buttons in the xml page for new assets added
+ */
+
 public class GalleryPage extends AppCompatActivity {
 
     HashMap<String, Integer> flags;

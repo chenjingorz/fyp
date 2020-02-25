@@ -59,6 +59,7 @@ public class WritingPage extends AppCompatActivity {
     int max;
     int startWord = 0; //start at index 0
     int poemLength;
+    int wrongWordTries = 0; //todo: save this tgt with the matrix and timestamp info
 
     String title;
     String firstLine;
@@ -115,7 +116,8 @@ public class WritingPage extends AppCompatActivity {
         startWord = 0;
 
         poem++;
-        if (poem ==max-2) poem =0;
+        if (poem == max) poem =0;
+
         String file = "poem"+ poem +".txt";
 
         BufferedReader reader = new BufferedReader(
@@ -140,8 +142,7 @@ public class WritingPage extends AppCompatActivity {
         //edge case: when it is at the last word and click next word
         if (startWord==poemLength){
             //save word once
-            if (!lastWordSaved) {
-                saveCanvas(true);
+            if (!lastWordSaved && saveCanvas(true)) {
                 lastWordSaved = true;
             }
             Toast toast = Toast.makeText(getApplicationContext(),
@@ -151,13 +152,12 @@ public class WritingPage extends AppCompatActivity {
             update.updateFlag("poem"+poem);
         }
         else {
-            wordV.setText(String.valueOf(poemText.charAt(startWord)));
-            bannerV.setText(spannable(poemText), TextView.BufferType.SPANNABLE);
-
             //save the image
-            saveCanvas(true);
-
-            updateWordCount();
+            if (saveCanvas(true)){
+                wordV.setText(String.valueOf(poemText.charAt(startWord)));
+                bannerV.setText(spannable(poemText), TextView.BufferType.SPANNABLE);
+                updateWordCount();
+            }
             clearCanvas(view);
         }
     }
@@ -242,7 +242,7 @@ public class WritingPage extends AppCompatActivity {
         editor.apply();
     }
 
-    private void saveCanvas(boolean next){
+    private Boolean saveCanvas(boolean next){
         // to indicate if the method is initiated by the "next" button
         String affix = "";
         if (next) affix = "next";
@@ -259,20 +259,32 @@ public class WritingPage extends AppCompatActivity {
         try
         {
             FileOutputStream fos = new FileOutputStream(file);
-            Bitmap bitmap = drawingBoard.getBitmap(false); //todo: check if bitmap is blank before saving?
+            Bitmap bitmap = drawingBoard.getBitmap(false);
 
             //if the written word is correct, save the image
-//            if (recognise()==String.valueOf(poemText.charAt(startWord))){
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            fos.flush();
-            fos.close();
-//            }
-            //todo: if incorrect, remove the previously saved matrix too?
+            if (recognise().equals(wordV.getText()) || wrongWordTries==3){
+                wrongWordTries = 0;
+                System.out.println("correct!");
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                fos.flush();
+                fos.close();
+            }
+            else{
+                wrongWordTries++;
+                Toast toast = Toast.makeText(getApplicationContext(),
+                        "Write the correct word!",
+                        Toast.LENGTH_SHORT);
+                toast.show();
+                return false;
+            }
+            //todo: if incorrect, make tags to identify and their matrix
         }
         catch (IOException e)
         {
             e.printStackTrace();
         }
+
+        return true;
     }
 
     private void setBaseFilePath(){
