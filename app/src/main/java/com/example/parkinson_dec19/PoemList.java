@@ -19,9 +19,9 @@ public class PoemList {
     };
     static HashMap poemFlag = new HashMap<String, Integer>(){
         {
-            put("poem0",1);
+            put("poem0",0);
             put("poem1",0);
-            put("poem2",0);
+            put("poem2",1);
             put("poem3",0);
             put("poem4",0);
         }

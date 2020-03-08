@@ -6,15 +6,20 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.os.Environment;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
 import com.myscript.iink.PointerEvent;
 
-import java.lang.reflect.Array;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 
 
 public class drawBoard extends View {
@@ -28,7 +33,7 @@ public class drawBoard extends View {
     private ArrayList<FingerPath> paths = new ArrayList<>();
     private int currentColor = Color.BLACK;
     private int backgroundColor = DEFAULT_BG_COLOR;
-    private int strokeWidth = 35;
+    private int strokeWidth = 50;
     private Bitmap bitmap;
     private Canvas canvas;
     private Paint mBitmapPaint = new Paint(Paint.DITHER_FLAG);
@@ -39,9 +44,10 @@ public class drawBoard extends View {
     private Float xCord;
     private Float yCord;
 
-    private ArrayList<Array> matrixInterval = new ArrayList<Array>();
-    ArrayList<PointerEvent> events = new ArrayList<PointerEvent>();
+    ArrayList<PointerEvent> events = new ArrayList<>();
 
+    ArrayList<String> matrix = new ArrayList<>();
+    ArrayList time = new ArrayList();
 
     public drawBoard(Context context) {
         this(context, null);
@@ -145,7 +151,7 @@ public class drawBoard extends View {
     }
 
     private void saveMatrixInterval(float curX, float curY){
-        //note: the ending coord of each word written is not saved when "next" is clicked
+        //note: the ending matrix of each word written is not saved when "next" is clicked
 
         if (xCord==null && yCord==null){
             xCord = curX;
@@ -154,16 +160,27 @@ public class drawBoard extends View {
 
         //check if #pixels moved > threshold
         if (Math.abs(curX-xCord)>PIXEL_DIFF || Math.abs(curY-yCord)>PIXEL_DIFF){
-            Bitmap bitmap = getBitmap(true);
+            File file = new File(Environment.getExternalStorageDirectory().getPath()+"/image.png");
+            FileOutputStream fos;
+            try {
+                fos = new FileOutputStream(file);
+                Bitmap bitmap = getBitmap(true);
+
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                fos.flush();
+                fos.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             int[] array = new int[bitmap.getWidth() * bitmap.getHeight()];
             bitmap.getPixels(array, 0, bitmap.getWidth(),0, 0,
                     bitmap.getWidth(), bitmap.getHeight());
             int[] masked = Arrays.stream(array).map(i -> i == -1 ? 0 : 1).toArray();
-
-//            ArrayList<Object> temp = new ArrayList<>();
-//            temp.add(masked);
-//            temp.add(Calendar.getInstance().getTimeInMillis());
-//            matrixInterval.add(temp);
+           matrix.add(Arrays.toString(masked));
+           time.add(Calendar.getInstance().getTimeInMillis());
 
             xCord = curX;
             yCord = curY;
@@ -173,7 +190,7 @@ public class drawBoard extends View {
     public Bitmap getBitmap(Boolean resize){
 
         if (resize) {
-            //TODO???? check if its btr to resize?
+            //TODO???? should resize or not?
             bitmap = Bitmap.createScaledBitmap(bitmap, IMAGE_SIZE, IMAGE_SIZE, false);
         }
         return bitmap;
@@ -184,5 +201,17 @@ public class drawBoard extends View {
     }
     public  ArrayList<PointerEvent> getPointerEvents(){
         return events;
+    }
+
+    public ArrayList<String> getWritingMatrix(){return matrix;}
+
+    public ArrayList<Long> getTime(){return time;}
+
+    public void clearWritingMatrix(){
+        matrix.clear();
+    }
+
+    public void clearTime(){
+        time.clear();
     }
 }

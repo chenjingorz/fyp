@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -59,7 +60,7 @@ public class WritingPage extends AppCompatActivity {
     int max;
     int startWord = 0; //start at index 0
     int poemLength;
-    int wrongWordTries = 0; //todo: save this tgt with the matrix and timestamp info
+    int wrongWordTries = 0;
 
     String title;
     String firstLine;
@@ -69,6 +70,7 @@ public class WritingPage extends AppCompatActivity {
 
     Boolean configured = false;
     Boolean lastWordSaved = false;
+    Boolean correctWordWritten = true;
 
     Timer timer;
     PoemList update;
@@ -139,17 +141,17 @@ public class WritingPage extends AppCompatActivity {
     }
 
     public void nextWord(View view){
-        //edge case: when it is at the last word and click next word
         if (startWord==poemLength){
-            //save word once
-            if (!lastWordSaved && saveCanvas(true)) {
-                lastWordSaved = true;
+            //save last word once
+            if (!lastWordSaved){
+                if (saveCanvas(true)) {
+                    lastWordSaved = true;}
             }
             Toast toast = Toast.makeText(getApplicationContext(),
                     "Try a new poem!",
                     Toast.LENGTH_SHORT);
             toast.show();
-            update.updateFlag("poem"+poem);
+            update.updateFlag("poem"+poem); //todo: can only check gallery if the whole verse is written and all correctWordWritten?
         }
         else {
             //save the image
@@ -158,8 +160,8 @@ public class WritingPage extends AppCompatActivity {
                 bannerV.setText(spannable(poemText), TextView.BufferType.SPANNABLE);
                 updateWordCount();
             }
-            clearCanvas(view);
         }
+        clearCanvas(view);
     }
 
     public void clearCanvas(View v){
@@ -167,6 +169,8 @@ public class WritingPage extends AppCompatActivity {
 
         //erase all strokes recorded for text recognition
         drawingBoard.eraseEvents();
+        drawingBoard.clearWritingMatrix();
+        drawingBoard.clearTime();
     }
 
     public void toPoemDisplay(View v){
@@ -243,52 +247,93 @@ public class WritingPage extends AppCompatActivity {
     }
 
     private Boolean saveCanvas(boolean next){
-        // to indicate if the method is initiated by the "next" button
-        String affix = "";
-        if (next) affix = "next";
-
-        File f = new File(baseFilePath);
-        if (!f.exists()){
-            f.mkdir();
-            System.out.println(f);
-        }
-
-        String fileName = "/poem"+poem+"_"+Calendar.getInstance().getTimeInMillis()+affix+".png";
-        File file = new File(f+fileName);
-
         try
         {
-            FileOutputStream fos = new FileOutputStream(file);
             Bitmap bitmap = drawingBoard.getBitmap(false);
 
-            //if the written word is correct, save the image
-            if (recognise().equals(wordV.getText()) || wrongWordTries==3){
+            //if the written word is correctWordWritten, save the image
+            if (recognise().equals(wordV.getText())){
+                // to indicate if the method is initiated by the "next" button
+                String affix = "";
+                if (next) affix = "next";
+
+                File f = new File(baseFilePath+"/images");
+                if (!f.exists()){
+                    f.mkdir();
+                    System.out.println(f);
+                }
+                String fileName = "/poem"+poem+"_"+Calendar.getInstance().getTimeInMillis()+affix+".png";
+                File file = new File(f+fileName);
+                FileOutputStream fos = new FileOutputStream(file);
+
+                saveArray();
                 wrongWordTries = 0;
-                System.out.println("correct!");
+                System.out.println("correctWordWritten!");
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
                 fos.flush();
                 fos.close();
             }
+            else if (wrongWordTries==2){ //if third try is still wrong word
+                saveArray();
+                wrongWordTries = 0;
+                Toast toast = Toast.makeText(getApplicationContext(),
+                        "Word skipped!",
+                        Toast.LENGTH_SHORT);
+                toast.show();
+            }
             else{
+                saveArray();
                 wrongWordTries++;
+                correctWordWritten = false;
                 Toast toast = Toast.makeText(getApplicationContext(),
                         "Write the correct word!",
                         Toast.LENGTH_SHORT);
                 toast.show();
                 return false;
             }
-            //todo: if incorrect, make tags to identify and their matrix
         }
         catch (IOException e)
         {
             e.printStackTrace();
         }
-
         return true;
+    }
+
+    private void saveArray(){
+        //save the matrix and timestamp info with the word, attempt#, flag
+        ArrayList<String> matrix = drawingBoard.getWritingMatrix();
+        ArrayList<Long> time = drawingBoard.getTime();
+
+
+        File txtPath = new File(baseFilePath+"/txt");
+        if (!txtPath.exists()){
+            txtPath.mkdir();
+            System.out.println("created text path: "+txtPath);
+        }
+
+        File txt = new File(txtPath, "info.txt");
+        try {
+            FileOutputStream fOut = new FileOutputStream(txt,true);
+            OutputStreamWriter writer = new OutputStreamWriter(fOut);
+            writer.append(wordV.getText()+",");
+            writer.append(wrongWordTries+",");
+            writer.append(correctWordWritten+",");
+            writer.append(matrix+",");
+            writer.append(time+"\n");
+            writer.close();
+            fOut.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void setBaseFilePath(){
         baseFilePath = Environment.getExternalStorageDirectory().getPath()+"/fyp/poem"+poem;
+        File basePath = new File(baseFilePath);
+        if (!basePath.exists()){
+            basePath.mkdir();
+            System.out.println("created base path: "+basePath);
+        }
     }
 
     private void permission(){
@@ -303,6 +348,7 @@ public class WritingPage extends AppCompatActivity {
         }
     }
 
+    //fixme: engine cannot be opened again when this activity is closed
     private void engineConf(){
         if (!configured){
             engine = InkEngine.getEngine();
