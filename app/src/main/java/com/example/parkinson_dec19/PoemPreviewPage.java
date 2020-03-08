@@ -55,7 +55,7 @@ public class PoemPreviewPage extends AppCompatActivity {
     }
 
     public void showPoem(View v) throws IOException {
-        max = poemList.getPoemFlag().size();
+        max = poemList.getPoemList().size();
 
         poem++;
         if (poem ==max) poem =0;

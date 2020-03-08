@@ -150,6 +150,7 @@ public class drawBoard extends View {
         return true;
     }
 
+    //support functions
     private void saveMatrixInterval(float curX, float curY){
         //note: the ending matrix of each word written is not saved when "next" is clicked
 
@@ -190,7 +191,6 @@ public class drawBoard extends View {
     public Bitmap getBitmap(Boolean resize){
 
         if (resize) {
-            //TODO???? should resize or not?
             bitmap = Bitmap.createScaledBitmap(bitmap, IMAGE_SIZE, IMAGE_SIZE, false);
         }
         return bitmap;
@@ -199,6 +199,7 @@ public class drawBoard extends View {
     public void eraseEvents(){
         events.clear();
     }
+
     public  ArrayList<PointerEvent> getPointerEvents(){
         return events;
     }

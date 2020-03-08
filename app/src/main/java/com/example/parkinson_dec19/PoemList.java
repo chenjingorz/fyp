@@ -17,22 +17,9 @@ public class PoemList {
             put("poem4","渡汉江");
         }
     };
-    static HashMap poemFlag = new HashMap<String, Integer>(){
-        {
-            put("poem0",0);
-            put("poem1",0);
-            put("poem2",1);
-            put("poem3",0);
-            put("poem4",0);
-        }
-    };
 
-    public void updateFlag(String poemNo){
-        poemFlag.put(poemNo,1);
-    }
-
-    public HashMap getPoemFlag(){
-        return poemFlag;
+    public HashMap getPoemList(){
+        return poemList;
     }
 
     public String getPoemName(String key){

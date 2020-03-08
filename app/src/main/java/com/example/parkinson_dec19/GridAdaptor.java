@@ -21,7 +21,7 @@ public class GridAdaptor extends BaseAdapter {
     public GridAdaptor(Context c, String poem) {
         context = c;
         imageList = imageReader(
-                new File(Environment.getExternalStorageDirectory().getPath()+"/fyp/"+poem));
+                new File(Environment.getExternalStorageDirectory().getPath()+"/fyp/"+poem+"/images"));
     }
 
     @Override

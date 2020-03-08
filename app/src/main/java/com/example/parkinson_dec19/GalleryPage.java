@@ -1,6 +1,8 @@
 package com.example.parkinson_dec19;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -17,26 +19,37 @@ import java.util.Map;
 
 public class GalleryPage extends AppCompatActivity {
 
-    HashMap<String, Integer> flags;
+    HashMap<String, Integer> poemStatus = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery_page);
 
-        PoemList poemList = new PoemList();
-        flags = poemList.getPoemFlag();
+        getPoemStatus();
         markFlagged();
+    }
+
+    private void getPoemStatus(){
+        PoemList poemList = new PoemList();
+        HashMap<String, Integer> flags = poemList.getPoemList();
+
+        for (Map.Entry<String, Integer> entry : flags.entrySet()) {
+            String key = entry.getKey();
+
+            SharedPreferences sharedPref = getSharedPreferences(key, Context.MODE_PRIVATE);
+            int value = sharedPref.getInt(getString(R.string.wordCount), 0);
+
+            poemStatus.put(key,value);
+        }
     }
 
     private void markFlagged(){
         //display all poems, make buttons green if flagged 1 (ie attempted)
-        for (Map.Entry<String, Integer> entry : flags.entrySet()) {
-            String key = entry.getKey();
-            Integer value = entry.getValue();
+        for (Map.Entry<String, Integer> entry : poemStatus.entrySet()) {
 
-            if (value==1){
-                int id = getResources().getIdentifier(key,
+            if (entry.getValue()==1){
+                int id = getResources().getIdentifier(entry.getKey(),
                         "id", getPackageName());
                 Button button = findViewById(id);
                 button.setBackgroundColor(getResources().getColor(R.color.colorFlag));
@@ -52,9 +65,10 @@ public class GalleryPage extends AppCompatActivity {
     public void toHandwritingPage(View v){
         String id = getResources().getResourceName(v.getId());
         String name = id.substring(id.length()-5);
+
         System.out.println("name of poem: "+name);
 
-        if (flags.get(name)==0){
+        if (poemStatus.get(name)==0){
             Toast toast = Toast.makeText(getApplicationContext(),
                     "Not completed yet!",
                     Toast.LENGTH_SHORT);

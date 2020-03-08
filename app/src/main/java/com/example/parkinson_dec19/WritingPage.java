@@ -107,6 +107,9 @@ public class WritingPage extends AppCompatActivity {
 
         setDisplayedTexts();
         setBaseFilePath();
+
+        //todo: clears word progress and poem flags
+        clearMemory("poem"+poem);
     }
 
     public void changePoem(View v) throws IOException {
@@ -151,7 +154,7 @@ public class WritingPage extends AppCompatActivity {
                     "Try a new poem!",
                     Toast.LENGTH_SHORT);
             toast.show();
-            update.updateFlag("poem"+poem); //todo: can only check gallery if the whole verse is written and all correctWordWritten?
+            updatePoemFlag("poem"+poem);
         }
         else {
             //save the image
@@ -239,9 +242,6 @@ public class WritingPage extends AppCompatActivity {
 
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putInt(getString(R.string.wordCount), count+1);
-
-        //todo: to reset the progress to 0 for testing
-//        editor.remove(getString(R.string.wordCount)).commit();
 
         editor.apply();
     }
@@ -431,5 +431,24 @@ public class WritingPage extends AppCompatActivity {
         editor.clear();
 
         return result;
+    }
+
+    private void updatePoemFlag(String poem){
+        SharedPreferences sharedPref = getSharedPreferences(poem, Context.MODE_PRIVATE);
+        int count = sharedPref.getInt(poem, 0);
+
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt(poem, count+1);
+        editor.apply();
+    }
+
+    private void clearMemory(String poem){
+        SharedPreferences flag = getSharedPreferences(poem, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = flag.edit();
+        editor.remove(poem).commit();
+
+        SharedPreferences wordCount = getSharedPreferences("WordCount", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor1 = wordCount.edit();
+        editor1.remove(getString(R.string.wordCount)).commit();
     }
 }
