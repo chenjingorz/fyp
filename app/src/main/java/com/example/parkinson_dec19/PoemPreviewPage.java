@@ -25,7 +25,7 @@ public class PoemPreviewPage extends AppCompatActivity {
     PoemList poemList;
 
     int max;
-    int poem = -1;
+    int poem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +50,9 @@ public class PoemPreviewPage extends AppCompatActivity {
             title = receive.getString("title");
             firstLine = receive.getString("firstLine");
             secLine = receive.getString("secLine");
+            if (receive.containsKey("poem")){
+                poem = receive.getInt("poem");
+            }else poem = -1;
             setTexts();
         }
     }

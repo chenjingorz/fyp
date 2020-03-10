@@ -6,17 +6,12 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.os.Environment;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
 import com.myscript.iink.PointerEvent;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -161,21 +156,7 @@ public class drawBoard extends View {
 
         //check if #pixels moved > threshold
         if (Math.abs(curX-xCord)>PIXEL_DIFF || Math.abs(curY-yCord)>PIXEL_DIFF){
-            File file = new File(Environment.getExternalStorageDirectory().getPath()+"/image.png");
-            FileOutputStream fos;
-            try {
-                fos = new FileOutputStream(file);
-                Bitmap bitmap = getBitmap(true);
-
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                fos.flush();
-                fos.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
+            Bitmap bitmap = getBitmap(true);
             int[] array = new int[bitmap.getWidth() * bitmap.getHeight()];
             bitmap.getPixels(array, 0, bitmap.getWidth(),0, 0,
                     bitmap.getWidth(), bitmap.getHeight());

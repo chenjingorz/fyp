@@ -38,8 +38,7 @@ public class GalleryPage extends AppCompatActivity {
             String key = entry.getKey();
 
             SharedPreferences sharedPref = getSharedPreferences(key, Context.MODE_PRIVATE);
-            int value = sharedPref.getInt(getString(R.string.wordCount), 0);
-
+            int value = sharedPref.getInt(key, 0);
             poemStatus.put(key,value);
         }
     }

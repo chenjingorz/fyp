@@ -109,22 +109,20 @@ public class WritingPage extends AppCompatActivity {
         setBaseFilePath();
 
         //todo: clears word progress and poem flags
-        clearMemory("poem"+poem);
+//        clearMemory("poem"+poem);
     }
 
     public void changePoem(View v) throws IOException {
         //timer.cancel();
-        setBaseFilePath();
         clearCanvas(v);
         lastWordSaved = false;
-
         startWord = 0;
 
         poem++;
         if (poem == max) poem =0;
+        setBaseFilePath();
 
         String file = "poem"+ poem +".txt";
-
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(getAssets().open(file),
                         StandardCharsets.UTF_16));
@@ -190,6 +188,7 @@ public class WritingPage extends AppCompatActivity {
         send.putString("title",title);
         send.putString("firstLine",firstLine);
         send.putString("secLine",secLine);
+        send.putInt("poem",poem);
 
         Intent intent = new Intent (this, PoemPreviewPage.class);
         intent.putExtras(send);
@@ -435,10 +434,8 @@ public class WritingPage extends AppCompatActivity {
 
     private void updatePoemFlag(String poem){
         SharedPreferences sharedPref = getSharedPreferences(poem, Context.MODE_PRIVATE);
-        int count = sharedPref.getInt(poem, 0);
-
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putInt(poem, count+1);
+        editor.putInt(poem, 1);
         editor.apply();
     }
 
