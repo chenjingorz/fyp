@@ -70,7 +70,7 @@ public class WritingPage extends AppCompatActivity {
 
     Boolean configured = false;
     Boolean lastWordSaved = false;
-    Boolean correctWordWritten = true;
+    Boolean correctWordWritten;
 
     Timer timer;
     PoemList update;
@@ -265,7 +265,8 @@ public class WritingPage extends AppCompatActivity {
                 File file = new File(f+fileName);
                 FileOutputStream fos = new FileOutputStream(file);
 
-                saveArray();
+                correctWordWritten = true;
+                writeToFile();
                 wrongWordTries = 0;
                 System.out.println("correctWordWritten!");
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
@@ -273,7 +274,8 @@ public class WritingPage extends AppCompatActivity {
                 fos.close();
             }
             else if (wrongWordTries==2){ //if third try is still wrong word
-                saveArray();
+                correctWordWritten = false;
+                writeToFile();
                 wrongWordTries = 0;
                 Toast toast = Toast.makeText(getApplicationContext(),
                         "Word skipped!",
@@ -281,9 +283,9 @@ public class WritingPage extends AppCompatActivity {
                 toast.show();
             }
             else{
-                saveArray();
                 wrongWordTries++;
                 correctWordWritten = false;
+                writeToFile();
                 Toast toast = Toast.makeText(getApplicationContext(),
                         "Write the correct word!",
                         Toast.LENGTH_SHORT);
@@ -298,7 +300,7 @@ public class WritingPage extends AppCompatActivity {
         return true;
     }
 
-    private void saveArray(){
+    private void writeToFile(){
         //save the matrix and timestamp info with the word, attempt#, flag
         ArrayList<String> matrix = drawingBoard.getWritingMatrix();
         ArrayList<Long> time = drawingBoard.getTime();
