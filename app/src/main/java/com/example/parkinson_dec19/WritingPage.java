@@ -300,7 +300,7 @@ public class WritingPage extends AppCompatActivity {
         return true;
     }
 
-    private void writeToFile(){
+    private void writeToFile(){ //todo: use pipe as separator!
         //save the matrix and timestamp info with the word, attempt#, flag
         ArrayList<String> matrix = drawingBoard.getWritingMatrix();
         ArrayList<Long> time = drawingBoard.getTime();
